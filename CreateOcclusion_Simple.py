@@ -29,9 +29,9 @@ def augment_leaf(leaf_image, angle, scale):
 #overlap the two masks to create occlusion
 def create_overlap(image_a, image_b, mask_a, mask_b, desired_overlap, step=5):
 
-    # Binary masks
-    mask_a = (mask_a > 0).astype(np.uint8)
-    mask_b = (mask_b > 0).astype(np.uint8)
+    # Binary masks -- convert to binary mask in early function.
+    #mask_a = (mask_a > 0).astype(np.uint8)
+    #mask_b = (mask_b > 0).astype(np.uint8)
 
     # Bounding boxes
     xa, ya, wa, ha = cv2.boundingRect(mask_a)
@@ -113,6 +113,7 @@ model = YOLO("runs/segment/train/weights/best.pt")#YOLO model path
 leaf_A = cv2.imread("Leaves/leaf_0_sub_2.jpg")#image path
 leaf_B = cv2.imread("Leaves/leaf_0_sub_3.jpg")#image path
 
+#resize the images to a smaller size for viewing purposes and processing time.
 scale = 0.2
 leaf_A = cv2.resize(leaf_A, None, fx=scale, fy=scale)
 leaf_B = cv2.resize(leaf_B, None, fx=scale, fy=scale)
@@ -121,6 +122,7 @@ leaf_B = cv2.resize(leaf_B, None, fx=scale, fy=scale)
 leaf_A_mask = get_masks(leaf_A, model)
 leaf_B_mask = get_masks(leaf_B, model)
 
+#isolate the leaves from the background using the masks and convert them to RGBA format
 isolated_leaf_A = cv2.bitwise_and(leaf_A,leaf_A,mask=leaf_A_mask)
 leaf_A_rgba = cv2.cvtColor(isolated_leaf_A, cv2.COLOR_BGR2BGRA)
 leaf_A_rgba[:, :, 3] = leaf_A_mask
@@ -146,13 +148,13 @@ result, overlap = create_overlap(
     leaf_A_mask,
     leaf_B_mask,
     desired_overlap=0.25,
-    step=5
+    step=5 #time saving step
 )
 
 print(f"Requested overlap: 25%")
 print(f"Actual overlap: {overlap * 100:.2f}%")
 
 cv2.imshow("Result", result)
-cv2.imwrite("occlusion_result.png", result)
+cv2.imwrite("occlusion_result25.png", result)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
