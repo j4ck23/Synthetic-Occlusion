@@ -2,10 +2,11 @@ import os
 import random
 from CreateOcclusion_Simple import create_overlap, get_masks, augment_leaf
 import cv2
+import numpy as np
 
 scale = 0.2
 i=0
-save_path = "C:/Users/Jack/Documents/Bits of Code/SyntheticOcclusion/Occlusion_Dataset_75"
+save_path = "C:/Users/Jack/Documents/Bits of Code/SyntheticOcclusion/Rotated_50"
 
 for i in range(10):
     #Read in random leaf from directory
@@ -25,6 +26,11 @@ for i in range(10):
     for file in os.listdir("Single_Leaves"):#Iterate through all leaves in the directory to create occlusions with Leaf_A
         Leaf_B = cv2.imread(os.path.join("Single_Leaves", file))
         Leaf_B = cv2.resize(Leaf_B, None, fx=scale, fy=scale)
+        #set random angle and scale for augmentation
+        angle = np.random.uniform(0, 360)
+        #scale = np.random.uniform(0.7, 1.3)
+        #Augment Leaf_B (rotation and scaling)
+        Leaf_B = augment_leaf(Leaf_B, angle, 1)
         #Get mask for Leaf_B
         leaf_B_mask = get_masks(Leaf_B)
         if leaf_B_mask is None:
@@ -39,7 +45,7 @@ for i in range(10):
                                          Leaf_B,
                                          leaf_A_mask,
                                          leaf_B_mask,
-                                         desired_overlap=0.75,
+                                         desired_overlap=0.50,
                                          step=5#time saving step
                                          )
         path = os.path.join(save_path, f"occlusion_result_{i}_{file}.png")
