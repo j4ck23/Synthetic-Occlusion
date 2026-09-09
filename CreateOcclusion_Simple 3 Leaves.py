@@ -261,5 +261,6 @@ result = create_overlap_3(
 )
 
 cv2.imshow("Result", result)
+cv2.imwrite("3leafoverlap.png", result)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
